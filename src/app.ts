@@ -1,16 +1,10 @@
 import express, { Application } from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import { logger } from "./shared/utils/logger";
 import { healthCheckMiddleware, healthCheckDetailedMiddleware } from "./shared/middleware/healthCheck.middleware";
-import { validateEnv } from "@/utils/validateEnv";
 import { HttpStatusCode } from "./shared/types/errors";
 import { errorHandlerMiddleware } from "./shared/middleware/errorHandler.middleware";
-
-// Load environment variables
-validateEnv();
-dotenv.config();
 
 // Initialize Express app
 const app: Application = express();

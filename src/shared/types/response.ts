@@ -10,7 +10,7 @@ export interface HealthStatus {
   timestamp: string;
   uptime: number;
   version: string;
-  environment: string;
+  environment: string | undefined;
   database: {
     status: string;
     responseTime?: number;

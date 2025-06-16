@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
-import { db } from "@/config/database";
 import { ApiResponse, HealthStatus } from "@/types/response";
-import { config } from "@/config/config";
+import { db } from "@/shared/database/database";
 
 export const healthCheckMiddleware = (req: Request, res: Response) => {
   const response: ApiResponse<{ status: string; timestamp: string }> = {
@@ -16,15 +15,13 @@ export const healthCheckMiddleware = (req: Request, res: Response) => {
 };
 
 export const healthCheckDetailedMiddleware = async (req: Request, res: Response) => {
-  const startTime = Date.now();
-
   // Test database connection
   let dbStatus = "disconnected";
   let dbResponseTime: number | undefined;
 
   try {
     const dbStart = Date.now();
-    await db.query("SELECT 1");
+    await db.testConnection();
     dbResponseTime = Date.now() - dbStart;
     dbStatus = "connected";
   } catch (error) {
@@ -45,7 +42,7 @@ export const healthCheckDetailedMiddleware = async (req: Request, res: Response)
     timestamp: new Date().toISOString(),
     uptime: Math.round(uptime),
     version: process.env.npm_package_version || "1.0.0",
-    environment: config.nodeEnv,
+    environment: process.env.NODE_ENV,
     database: {
       status: dbStatus,
       responseTime: dbResponseTime,

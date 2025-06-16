@@ -1,5 +1,4 @@
 import winston from "winston";
-import { config } from "@/config/config";
 
 const logFormat = winston.format.combine(
   winston.format.timestamp({
@@ -20,7 +19,7 @@ const consoleFormat = winston.format.combine(
 );
 
 export const logger = winston.createLogger({
-  level: config.logging.level,
+  level: process.env.LOG_LEVEL || "info",
   format: logFormat,
   defaultMeta: { service: "express-app" },
   transports: [
@@ -44,7 +43,7 @@ export const logger = winston.createLogger({
 });
 
 // If we're not in production, log to the console with simple format
-if (config.nodeEnv !== "production") {
+if (process.env.NODE_ENV !== "production") {
   logger.add(
     new winston.transports.Console({
       format: consoleFormat,

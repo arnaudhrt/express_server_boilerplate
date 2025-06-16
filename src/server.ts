@@ -1,17 +1,21 @@
+import dotenv from "dotenv";
+dotenv.config();
 import app from "./app";
-import { connectDB, db } from "./config/database";
 import { logger } from "./shared/utils/logger";
+import { ErrorHandler } from "./shared/utils/errorHandler";
+import { db } from "./shared/database/database";
 
 const PORT = process.env.PORT || 3001;
 
 const startServer = async () => {
   try {
-    await connectDB();
-
+    // Test database connection
+    await db.testConnection();
+    // Start server
     const server = app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
     });
-
+    // Graceful shutdown handler
     const gracefulShutdown = (signal: string) => {
       logger.info(`${signal} received, shutting down gracefully`);
       server.close(async () => {
@@ -20,11 +24,12 @@ const startServer = async () => {
         process.exit(0);
       });
     };
-
+    // Handle signals
     process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
     process.on("SIGINT", () => gracefulShutdown("SIGINT"));
   } catch (error) {
-    logger.error("Failed to start server:", error);
+    const apiError = ErrorHandler.processError(error);
+    logger.error(apiError.message, apiError);
     process.exit(1);
   }
 };
